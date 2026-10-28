@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "node --watch src/server.js",
     "start": "node src/server.js",
-    "migrate": "psql \"$DATABASE_URL\" -f migrations/001_init.sql && psql \"$DATABASE_URL\" -f migrations/002_episode_content.sql",
+    "migrate": "node scripts/migrate.mjs",
     "validate:content": "node scripts/validate-content.mjs",
     "test": "node --test"
   },

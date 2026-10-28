@@ -16,14 +16,20 @@ CREATE TABLE IF NOT EXISTS players (
 );
 
 -- 2. Episodes (Ep 1126 - 1150) ------------------------------------------
+-- `id` = nomor episode anime pertama pada chapter tersebut. Episode dua
+-- bagian digabung dan nomor bagian keduanya disimpan di `source_episodes`.
 CREATE TABLE IF NOT EXISTS episodes (
     id INT PRIMARY KEY,
     title VARCHAR(150) NOT NULL,
     type VARCHAR(20) CHECK (type IN ('CANON', 'FILLER')),
     description TEXT,
     unlocked_by_default BOOLEAN DEFAULT false,
+    source_episodes INT[],
     deduction_tree JSONB DEFAULT '{"nodes": [], "edges": []}'::jsonb
 );
+
+-- Migrasi untuk database yang dibuat sebelum kolom `source_episodes` ada.
+ALTER TABLE episodes ADD COLUMN IF NOT EXISTS source_episodes INT[];
 
 -- 3. Evidence / Clues ---------------------------------------------------
 CREATE TABLE IF NOT EXISTS evidence (
@@ -60,14 +66,19 @@ CREATE INDEX IF NOT EXISTS idx_players_geog ON players USING GIST ((location::ge
 CREATE INDEX IF NOT EXISTS idx_evidence_episode ON evidence (episode_id);
 CREATE INDEX IF NOT EXISTS idx_quests_episode ON quests (episode_id);
 
--- Seed: Episode 1126 (Kogoro Framed Arc) --------------------------------
-INSERT INTO episodes (id, title, type, description, unlocked_by_default)
+-- Episode 1126 — "The Detective Who Lost His Mind" (TV original, 8 Jun 2024) --
+-- Kanoko Kon meminta Kogoro menyelidiki dugaan perselingkuhan suaminya,
+-- Heiwa Kon (ketua Kon Corporation), dengan joki idola Sakurada Sakura.
+-- Kogoro menguntit selama seminggu tanpa hasil; malam itu, saat mengantar
+-- Kanoko pulang, terdengar jeritan.
+INSERT INTO episodes (id, title, type, description, unlocked_by_default, source_episodes)
 VALUES (
     1126,
-    'Kogoro Framed',
+    'The Detective Who Lost His Mind',
     'CANON',
-    'Kogoro Mouri dijebak dalam sebuah kasus. Conan harus mengumpulkan bukti untuk membersihkan namanya.',
-    true
+    'Kanoko Kon meminta Kogoro menyelidiki dugaan perselingkuhan suaminya, Heiwa Kon, ketua Kon Corporation, dengan joki idola Sakurada Sakura. Seminggu menguntit tanpa hasil, sampai malam saat Kogoro mengantar Kanoko pulang terdengar sebuah jeritan.',
+    true,
+    ARRAY[1126]
 )
 ON CONFLICT (id) DO NOTHING;
 
@@ -83,27 +94,36 @@ ON CONFLICT (id) DO NOTHING;
 
 SELECT setval('players_id_seq', (SELECT MAX(id) FROM players));
 
+-- Bukti episode 1126 (lokasi & detail inventif untuk gameplay).
 INSERT INTO evidence (id, episode_id, name, description, icon, map_coordinate, is_key_evidence)
 VALUES
-    (1126001, 1126, 'Sidik Jari di Gelas', 'Sidik jari pada gelas di kantor Mouri tidak cocok dengan Kogoro.', 'fingerprint',
+    (1126001, 1126, 'Catatan Penguntitan Seminggu',
+     'Buku catatan Kogoro: tujuh hari mengikuti Heiwa Kon ke kantor, paddock, dan rumah makan. Nihil kejanggalan.',
+     'notebook-pen',
      ST_SetSRID(ST_MakePoint(139.6503, 35.6762), 4326), true),
-    (1126002, 1126, 'Rekaman CCTV Lorong', 'Rekaman menunjukkan seseorang memakai jas yang sama dengan Kogoro.', 'video',
-     ST_SetSRID(ST_MakePoint(139.6510, 35.6755), 4326), false),
-    (1126003, 1126, 'Tiket Kafe Poirot', 'Tiket yang tertinggal mengarah ke waktu kejadian.', 'receipt',
-     ST_SetSRID(ST_MakePoint(139.6495, 35.6770), 4326), false)
+    (1126002, 1126, 'Struk Makan Malam Kanoko',
+     'Struk restoran malam itu. Waktu cetak membuktikan jam Kogoro dan Kanoko masih di meja saat keributan terjadi.',
+     'receipt',
+     ST_SetSRID(ST_MakePoint(139.6511, 35.6757), 4326), false),
+    (1126003, 1126, 'Jeritan di Depan Kediaman Kon',
+     'Terdengar tepat saat Kanoko turun dari mobil. Arah suaranya bukan dari rumah, melainkan dari sisi carport.',
+     'audio-waveform',
+     ST_SetSRID(ST_MakePoint(139.6494, 35.6771), 4326), false)
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO quests (id, episode_id, title, objective, required_evidence_ids, target_npc)
 VALUES
-    (1126001, 1126, 'Bersihkan Nama Kogoro', 'Kumpulkan bukti di sekitar kantor Mouri lalu buktikan alibi Kogoro.', ARRAY[1126001, 1126002], 'kogoro-mouri')
+    (1126001, 1126, 'Laporan Perselingkuhan yang Sunyi',
+     'Buka catatan penguntitan Kogoro, periksa struk makan malam, lalu telusuri sumber jeritan di kediaman Kon.',
+     ARRAY[1126001, 1126002, 1126003], 'kogoro-mouri')
 ON CONFLICT (id) DO NOTHING;
 
 UPDATE episodes
    SET deduction_tree = '{
          "nodes": [
-           {"id": 1126001, "label": "Sidik jari bukan milik Kogoro", "evidence": [1126001]},
-           {"id": 1126002, "label": "Pelaku memakai jas serupa", "evidence": [1126002]},
-           {"id": 1126003, "label": "Waktu kejadian terkonfirmasi", "evidence": [1126003]}
+           {"id": 1126001, "label": "Seminggu menguntit: Heiwa tidak berselingkuh", "evidence": [1126001]},
+           {"id": 1126002, "label": "Alibi jam: Kogoro dan Kanoko masih di meja makan", "evidence": [1126001, 1126002]},
+           {"id": 1126003, "label": "Jeritan datang dari carport, bukan dari dalam rumah", "evidence": [1126001, 1126002, 1126003]}
          ],
          "edges": [
            {"from": 1126001, "to": 1126002, "requires": [1126001, 1126002]},
