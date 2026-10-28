@@ -105,18 +105,16 @@ async function interact() {
     const coords = worldToLatLng(player.position, map.worldWidth, map.worldHeight)
     const saved = await player.syncPositionOnServer(coords.lat, coords.lng)
     if (!saved) return
+
     const result = await episode.collect(target.data.id)
-    if (!result) {
-      player.error = episode.error
+    if (!result.ok) {
+      player.error = result.reason
       return
     }
-    const item = episode.evidence.find((e) => e.id === target.data.id)
-    player.inventory = result.inventory.map((entry) => ({
-      ...entry,
-      description: entry.description || episode.evidence.find((e) => e.id === entry.id)?.description || '',
-    }))
-    player.deductionPoints = result.deduction_points
-    episode.openDialogue([`Conan: (Ketemu! ${item?.name ?? 'Sebuah bukti'})`])
+
+    player.applyServerState(result)
+    const name = result.evidence?.name ?? 'sebuah bukti'
+    episode.openDialogue([`Conan: (Ketemu! ${name})`])
   } finally {
     busy.value = false
     refreshNearby()

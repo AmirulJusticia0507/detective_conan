@@ -57,14 +57,17 @@ export const useEpisodeStore = defineStore('episode', {
     },
 
     async collect(evidenceId) {
-      if (this.collectedEvidenceIds.includes(evidenceId)) return true
+      if (this.collectedEvidenceIds.includes(evidenceId)) {
+        return { ok: false, reason: 'Bukti ini sudah dikumpulkan.' }
+      }
+      this.error = null
       try {
         const result = await api.collectEvidence(evidenceId)
         this.collectedEvidenceIds.push(evidenceId)
-        return result
+        return { ok: true, ...result }
       } catch (err) {
         this.error = err.message
-        return false
+        return { ok: false, reason: err.message }
       }
     },
 

@@ -30,6 +30,17 @@ export const usePlayerStore = defineStore('player', {
       this.position = { x, y }
     },
 
+    /** Sinkronkan state hasil respons backend (inventory + poin). */
+    applyServerState({ inventory, deduction_points }) {
+      if (Array.isArray(inventory)) {
+        this.inventory = inventory.map((item) => ({
+          ...item,
+          description: item.description || 'Bukti dari Tempat Kejadian.',
+        }))
+      }
+      if (typeof deduction_points === 'number') this.deductionPoints = deduction_points
+    },
+
     setFacing(direction) {
       this.facing = direction
     },
@@ -39,6 +50,12 @@ export const usePlayerStore = defineStore('player', {
       this.error = null
       try {
         const data = await api.getPlayer(playerId)
+
+        // Muat episode lebih dulu agar deskripsi inventory bisa dilengkapi
+        // dari data evidence.
+        const episode = useEpisodeStore()
+        if (!episode.currentEpisode) await episode.loadEpisode(data.current_episode)
+
         this.$patch({
           id: data.id,
           username: data.username,
@@ -46,14 +63,14 @@ export const usePlayerStore = defineStore('player', {
           deductionPoints: data.deduction_points,
           inventory: (data.inventory ?? []).map((item) => ({
             ...item,
-            description: item.description || 'Bukti dari Tempat Kejadian.',
+            description:
+              item.description ||
+              episode.evidence.find((e) => e.id === item.id)?.description ||
+              'Bukti dari Tempat Kejadian.',
           })),
         })
 
-        // Sinkronkan daftar bukti yang sudah dikumpulkan ke episode store
-        const episode = useEpisodeStore()
         episode.collectedEvidenceIds = this.collectedEvidenceIds
-        if (!episode.currentEpisode) await episode.loadEpisode(data.current_episode)
       } catch (err) {
         this.error = err.message
       } finally {
