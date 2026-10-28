@@ -153,7 +153,7 @@ Agar agen AI (seperti Gemini / Claude) dapat membantu mengembangkan game ini sec
   - [ ] Kaitou Kid Arc: Mini-game pertunjukan sulap & pencurian mahkota di museum.
   - [ ] Cafe Poirot Arc: Misi penyelidikan rahasia bersama Amuro & Sera.
   - [ ] Filler Episodes Mini-quests (Investigasi kasus-kasus kecil Beika Town).
-- [ ] **Phase 4: Polish & UI Anime Theme**
-  - [ ] Desain UI/UX khas Detective Conan (Skema warna Biru, Merah, Kuning, font retro/detective).
-  - [ ] Sound FX & Audio Triggers (Suara Jam Bius, Penemuan Bukti, BGM Detektif).
-  - [ ] Testing & Optimization (PostGIS Indexing & State Synchronization).
+- [x] **Phase 4: Polish & UI Anime Theme**
+  - [x] Desain UI/UX khas Detective Conan (Skema warna Biru, Merah, Kuning, font retro/detective).
+  - [x] Sound FX dan audio trigger untuk interaksi serta penemuan bukti.
+  - [x] Testing input API, indeks PostGIS, dan sinkronisasi state.

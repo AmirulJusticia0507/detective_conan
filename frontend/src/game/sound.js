@@ -1,8 +1,17 @@
+let enabled = true
+let context
+
+export function setSoundEnabled(value) {
+  enabled = value
+}
+
 export function playTone(frequency, duration = 0.08) {
+  if (!enabled) return
   const AudioContext = window.AudioContext || window.webkitAudioContext
   if (!AudioContext) return
 
-  const context = new AudioContext()
+  context ??= new AudioContext()
+  if (context.state === 'suspended') context.resume()
   const oscillator = context.createOscillator()
   const gain = context.createGain()
   oscillator.frequency.value = frequency
@@ -11,5 +20,4 @@ export function playTone(frequency, duration = 0.08) {
   oscillator.connect(gain).connect(context.destination)
   oscillator.start()
   oscillator.stop(context.currentTime + duration)
-  oscillator.addEventListener('ended', () => context.close())
 }

@@ -1,10 +1,12 @@
 <script setup>
 import { usePlayerStore } from '@/stores/playerStore'
 import { useEpisodeStore } from '@/stores/episodeStore'
+import { Volume2, VolumeX } from 'lucide-vue-next'
 
 const player = usePlayerStore()
 const episode = useEpisodeStore()
-const emit = defineEmits(['open-inventory', 'open-board'])
+defineProps({ soundEnabled: { type: Boolean, default: true } })
+const emit = defineEmits(['open-inventory', 'open-board', 'toggle-sound'])
 </script>
 
 <template>
@@ -27,6 +29,15 @@ const emit = defineEmits(['open-inventory', 'open-board'])
     </span>
 
     <div class="ml-auto flex gap-2">
+      <button
+        class="rounded-md bg-slate-700 p-1.5 transition hover:bg-slate-600"
+        type="button"
+        :aria-label="soundEnabled ? 'Matikan suara' : 'Nyalakan suara'"
+        @click="emit('toggle-sound')"
+      >
+        <Volume2 v-if="soundEnabled" class="h-4 w-4" />
+        <VolumeX v-else class="h-4 w-4" />
+      </button>
       <button
         class="rounded-md bg-slate-700 px-3 py-1 transition hover:bg-slate-600"
         type="button"

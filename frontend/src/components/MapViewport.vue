@@ -5,7 +5,7 @@ import { useMapStore } from '@/stores/mapStore'
 import { useEpisodeStore } from '@/stores/episodeStore'
 import { createRenderer } from '@/game/renderer'
 import { createLoop, readMovement, PLAYER_SPEED } from '@/game/loop'
-import { playTone } from '@/game/sound'
+import { playTone, setSoundEnabled } from '@/game/sound'
 import { computed } from 'vue'
 import { NPCS, EVIDENCE_MARKERS, findNearby, isBlocked } from '@/game/worldData'
 import { worldToLatLng, latLngToWorld } from '@/utils/geo'
@@ -26,6 +26,7 @@ const showBoard = ref(false)
 const showError = ref(false)
 const nearby = ref(null)
 const busy = ref(false)
+const soundEnabled = ref(true)
 
 let renderer = null
 let loop = null
@@ -129,6 +130,11 @@ function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max)
 }
 
+function toggleSound() {
+  soundEnabled.value = !soundEnabled.value
+  setSoundEnabled(soundEnabled.value)
+}
+
 watch(
   () => player.error,
   (message) => {
@@ -177,7 +183,13 @@ onBeforeUnmount(() => {
     <canvas ref="canvasRef" class="absolute inset-0 block h-full w-full" />
 
     <div class="pointer-events-none absolute inset-0 flex flex-col">
-      <HudBar class="pointer-events-auto" @open-inventory="showInventory = true" @open-board="showBoard = true" />
+      <HudBar
+        class="pointer-events-auto"
+        :sound-enabled="soundEnabled"
+        @open-inventory="showInventory = true"
+        @open-board="showBoard = true"
+        @toggle-sound="toggleSound"
+      />
 
       <div class="mt-auto">
         <p v-if="player.isLoading" class="px-4 pb-1 text-xs text-slate-400">Memuat data pemain…</p>
