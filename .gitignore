@@ -1,0 +1,45 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.npm/
+.npmrc
+
+# Build & cache
+dist/
+build/
+.cache/
+.vite/
+*.tsbuildinfo
+coverage/
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Database / dump
+*.sql.gz
+*.dump
+pgdata/
+
+# Laragon / PHP (root web publik)
+vendor/
+*.log
+*.pid
+
+# Editor & OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# OpenCode lokal
+.opencode/plans/
+.opencode/cache/
