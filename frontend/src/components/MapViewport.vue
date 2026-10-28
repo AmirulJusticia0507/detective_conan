@@ -5,8 +5,9 @@ import { useMapStore } from '@/stores/mapStore'
 import { useEpisodeStore } from '@/stores/episodeStore'
 import { createRenderer } from '@/game/renderer'
 import { createLoop, readMovement, PLAYER_SPEED } from '@/game/loop'
+import { computed } from 'vue'
 import { NPCS, EVIDENCE_MARKERS, findNearby, isBlocked } from '@/game/worldData'
-import { worldToLatLng } from '@/utils/geo'
+import { worldToLatLng, latLngToWorld } from '@/utils/geo'
 import DialogueBox from './DialogueBox.vue'
 import InventoryPanel from './InventoryPanel.vue'
 import EvidenceBoard from './EvidenceBoard.vue'
@@ -28,6 +29,19 @@ const busy = ref(false)
 let renderer = null
 let loop = null
 
+/**
+ * Marker peta dihitung dari evidence episode aktif (koordinat lat/lng dari
+ * database). Fallback ke daftar statis bila episode belum termuat.
+ */
+const evidenceMarkers = computed(() => {
+  const withCoords = episode.evidence.filter((e) => e.lat != null && e.lng != null)
+  if (!withCoords.length) return EVIDENCE_MARKERS
+  return withCoords.map((e) => {
+    const point = latLngToWorld(e, map.worldWidth, map.worldHeight)
+    return { id: e.id, x: point.x, y: point.y }
+  })
+})
+
 function update(dt, pressed) {
   const { dx, dy, facing } = readMovement(pressed, PLAYER_SPEED, dt)
   if (dx === 0 && dy === 0) return
@@ -48,7 +62,7 @@ function refreshNearby() {
     nearby.value = { type: 'npc', data: npc }
     return
   }
-  const uncollected = EVIDENCE_MARKERS.filter(
+  const uncollected = evidenceMarkers.value.filter(
     (m) => !player.collectedEvidenceIds.includes(m.id),
   )
   const marker = findNearby(player.position.x, player.position.y, uncollected)
@@ -66,6 +80,7 @@ function render(time) {
     player: player.position,
     facing: player.facing,
     collectedEvidenceIds: player.collectedEvidenceIds,
+    evidenceMarkers: evidenceMarkers.value,
     nearbyId: nearby.value?.type === 'npc' ? nearby.value.data.id : null,
     time,
   })

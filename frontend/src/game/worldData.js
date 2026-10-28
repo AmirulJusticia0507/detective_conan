@@ -60,7 +60,9 @@ export const NPCS = [
 ]
 
 /**
- * Marker bukti di peta. `id` harus sama dengan evidence.id di database.
+ * Marker bukti bawaan (fallback) bila episode belum memuat data.
+ * Marker aktif dihitung dari `episode.evidence` + koordinat lat/lng, lihat
+ * `latLngToWorld` di utils/geo.js.
  */
 export const EVIDENCE_MARKERS = [
   { id: 1126001, x: 1024, y: 768 },

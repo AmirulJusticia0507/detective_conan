@@ -3,7 +3,7 @@
  * Hanya menggambar apa pun yang ada di state + data dunia.
  */
 
-import { WORLD, ROADS, BUILDINGS, NPCS, EVIDENCE_MARKERS } from './worldData'
+import { WORLD, ROADS, BUILDINGS, NPCS } from './worldData'
 
 const COLORS = {
   ground: '#1f3d2b',
@@ -37,7 +37,14 @@ export function createRenderer(canvas) {
 
   function draw(state) {
     const { width, height } = canvas.getBoundingClientRect()
-    const { camera, player, facing = 'down', collectedEvidenceIds = [], nearbyId = null } = state
+    const {
+      camera,
+      player,
+      facing = 'down',
+      collectedEvidenceIds = [],
+      evidenceMarkers = [],
+      nearbyId = null,
+    } = state
 
     ctx.fillStyle = COLORS.ground
     ctx.fillRect(0, 0, width, height)
@@ -47,7 +54,7 @@ export function createRenderer(canvas) {
 
     drawRoads(ctx)
     drawBuildings(ctx)
-    drawEvidence(ctx, collectedEvidenceIds, state.time ?? 0)
+    drawEvidence(ctx, evidenceMarkers, collectedEvidenceIds, state.time ?? 0)
     drawNpcs(ctx, nearbyId)
     drawPlayer(ctx, player, facing)
 
@@ -99,9 +106,9 @@ function drawBuildings(ctx) {
   }
 }
 
-function drawEvidence(ctx, collectedIds, time) {
+function drawEvidence(ctx, markers, collectedIds, time) {
   const pulse = 0.55 + 0.45 * Math.sin(time / 400)
-  for (const marker of EVIDENCE_MARKERS) {
+  for (const marker of markers) {
     if (collectedIds.includes(marker.id)) continue
 
     ctx.fillStyle = COLORS.evidenceGlow

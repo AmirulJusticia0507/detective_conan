@@ -106,8 +106,8 @@ UPDATE episodes
            {"id": 1126003, "label": "Waktu kejadian terkonfirmasi", "evidence": [1126003]}
          ],
          "edges": [
-           {"from": 1126001, "to": 1126002, "requires": [1126002]},
-           {"from": 1126002, "to": 1126003, "requires": [1126003]}
+           {"from": 1126001, "to": 1126002, "requires": [1126001, 1126002]},
+           {"from": 1126002, "to": 1126003, "requires": [1126001, 1126002, 1126003]}
          ]
        }'::jsonb
  WHERE id = 1126;
