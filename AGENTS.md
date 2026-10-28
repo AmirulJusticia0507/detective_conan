@@ -23,6 +23,15 @@ Aturan detail:
 
 Rincian lengkap ada di `.opencode/agents/auto-commit.md`.
 
+## Agent & skill proyek
+
+- `.opencode/agents/auto-commit.md` — agent kerja dengan aturan commit+push.
+- `.opencode/agents/conan-game-builder.md` — agent pengembang game (logika
+  game, konten episode, Vue 3, Express + PostGIS).
+- Skill: `episode-quest-generator`, `vue3-canvas-renderer`,
+  `express-spatial-api` di `.opencode/skills/`.
+- Desain lengkap: `README.v2.md`.
+
 ## Konteks proyek
 
 - Frontend: Vue 3 (`<script setup>`), Pinia, Tailwind, Canvas/PixiJS.
