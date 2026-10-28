@@ -29,7 +29,10 @@ export const useEpisodeStore = defineStore('episode', {
         .every((e) => state.collectedEvidenceIds.includes(e.id)),
     activeQuest: (state) => {
       const done = new Set(state.solvedNodeIds)
-      return state.quests.find((q) => !q.required_evidence_ids.every((id) => done.has(id))) ?? null
+      return (
+        state.quests.find((q) => !(q.required_evidence_ids ?? []).every((id) => done.has(id))) ??
+        null
+      )
     },
   },
 
@@ -56,9 +59,9 @@ export const useEpisodeStore = defineStore('episode', {
     async collect(evidenceId) {
       if (this.collectedEvidenceIds.includes(evidenceId)) return true
       try {
-        await api.collectEvidence(this.currentEpisode?.id, evidenceId)
+        const result = await api.collectEvidence(evidenceId)
         this.collectedEvidenceIds.push(evidenceId)
-        return true
+        return result
       } catch (err) {
         this.error = err.message
         return false
@@ -66,13 +69,15 @@ export const useEpisodeStore = defineStore('episode', {
     },
 
     /**
-     * Hubungkan dua evidence di deduction board, validasi lewat server.
+     * Hubungkan dua bukti. Server tetap sumber kebenaran; cek lokal hanya
+     * untuk umpan balik cepat.
      */
     async connectEvidence(fromId, toId) {
-      const edge = this.deductionEdges.find((e) => e.from === fromId && e.to === toId)
-      if (!edge) return { ok: false, reason: 'Tidak ada hubungan deduksi antara kedua bukti.' }
       if (!this.collectedEvidenceIds.includes(fromId)) {
         return { ok: false, reason: 'Bukti asal belum dikumpulkan.' }
+      }
+      if (!this.currentEpisode) {
+        return { ok: false, reason: 'Belum ada episode aktif.' }
       }
       try {
         const res = await api.submitDeduction(this.currentEpisode.id, fromId, toId)

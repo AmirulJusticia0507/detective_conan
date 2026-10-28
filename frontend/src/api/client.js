@@ -1,5 +1,8 @@
 const BASE_URL = import.meta.env.VITE_API_URL ?? '/api'
 
+// TODO: ganti dengan ID pemain dari sesi login setelah sistem auth dibuat.
+const PLAYER_ID = 1
+
 async function request(path, options = {}) {
   const res = await fetch(`${BASE_URL}${path}`, {
     headers: { 'Content-Type': 'application/json', ...(options.headers ?? {}) },
@@ -20,24 +23,29 @@ async function request(path, options = {}) {
 }
 
 export const api = {
-  getPlayer: (id) => request(`/players/${id}`),
-  savePosition: (id, lat, lng) =>
+  PLAYER_ID,
+
+  getPlayer: (id = PLAYER_ID) => request(`/players/${id}`),
+  savePosition: (lat, lng, id = PLAYER_ID) =>
     request(`/players/${id}/position`, {
       method: 'PATCH',
       body: JSON.stringify({ lat, lng }),
     }),
 
-  getEpisode: (id) => request(`/episodes/${id}`),
-  collectEvidence: (episodeId, evidenceId) =>
-    request(`/players/me/evidence/${evidenceId}/collect`, {
+  getEpisode: (episodeId) => request(`/episodes/${episodeId}`),
+
+  nearbyEvidence: (radius = 120, id = PLAYER_ID) =>
+    request(`/players/nearby?playerId=${id}&radius=${radius}`),
+
+  collectEvidence: (evidenceId, radius = 120, id = PLAYER_ID) =>
+    request(`/players/${id}/evidence/${evidenceId}/collect`, {
       method: 'POST',
-      body: JSON.stringify({ episodeId }),
+      body: JSON.stringify({ radius }),
     }),
-  nearbyEvidence: (playerId, radius = 120) =>
-    request(`/map/players/${playerId}/nearby?radius=${radius}`),
-  submitDeduction: (episodeId, fromId, toId) =>
-    request(`/deductions`, {
+
+  submitDeduction: (episodeId, fromEvidenceId, toEvidenceId, id = PLAYER_ID) =>
+    request('/deductions', {
       method: 'POST',
-      body: JSON.stringify({ episodeId, fromEvidenceId: fromId, toEvidenceId: toId }),
+      body: JSON.stringify({ playerId: id, episodeId, fromEvidenceId, toEvidenceId }),
     }),
 }

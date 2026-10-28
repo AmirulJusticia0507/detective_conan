@@ -10,7 +10,7 @@ body,
 }
 
 body {
-  background-color: theme('colors.beika.ink');
+  background-color: #0f172a; /* sama dengan beika.ink */
   color: #e2e8f0;
   font-family: ui-sans-serif, system-ui, sans-serif;
   overflow: hidden;

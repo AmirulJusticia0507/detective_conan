@@ -14,9 +14,15 @@ const KEY_MAP = {
   s: 'down',
   a: 'left',
   d: 'right',
+  W: 'up',
+  S: 'down',
+  A: 'left',
+  D: 'right',
 }
 
-export function createLoop({ onUpdate }) {
+export const ACTION_KEYS = new Set(['e', 'E', 'Enter', ' '])
+
+export function createLoop({ onUpdate, onAction }) {
   const pressed = new Set()
   let rafId = 0
   let last = 0
@@ -28,8 +34,17 @@ export function createLoop({ onUpdate }) {
   }
 
   function onKeyDown(event) {
+    if (shouldIgnoreInput(event)) return
+
+    if (ACTION_KEYS.has(event.key)) {
+      if (event.repeat) return
+      event.preventDefault()
+      onAction?.()
+      return
+    }
+
     const dir = KEY_MAP[event.key]
-    if (!dir || shouldIgnoreInput(event)) return
+    if (!dir) return
     event.preventDefault()
     pressed.add(dir)
   }
@@ -47,7 +62,7 @@ export function createLoop({ onUpdate }) {
     if (!running) return
     const dt = Math.min((now - last) / 1000, 0.1)
     last = now
-    onUpdate(dt, pressed)
+    onUpdate(dt, pressed, now)
     rafId = requestAnimationFrame(frame)
   }
 
