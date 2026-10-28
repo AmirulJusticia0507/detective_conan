@@ -11,7 +11,7 @@ function toNumber(value) {
  */
 export async function getEpisodeService(episodeId) {
   const { rows } = await query(
-    `SELECT id, title, type, description, unlocked_by_default, deduction_tree
+    `SELECT id, title, type, description, unlocked_by_default, source_episodes, deduction_tree
        FROM episodes
       WHERE id = $1`,
     [episodeId],
@@ -45,6 +45,8 @@ export async function getEpisodeService(episodeId) {
       type: episode.type,
       description: episode.description,
       unlocked_by_default: episode.unlocked_by_default,
+      // Nomor episode anime asli; satu chapter bisa mencakup dua episode.
+      source_episodes: episode.source_episodes ?? [episode.id],
     },
     evidence: evidence.rows.map((row) => ({
       ...row,

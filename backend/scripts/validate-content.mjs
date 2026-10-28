@@ -81,16 +81,25 @@ for (const file of files) {
   for (const match of sql.matchAll(/INSERT INTO quests[\s\S]*?;\n/g)) {
     parseQuests(match[0])
   }
-  // Update tree untuk episode yang sudah ada (001_init.sql)
-  for (const match of sql.matchAll(/UPDATE episodes[\s\S]*?WHERE id = (\d+);/g)) {
-    parseTree(match[0], Number(match[1]))
-  }
-  // Episode baru yang sekaligus membawa deduction_tree (002_episode_content.sql)
+  // Episode baru yang sekaligus membawa deduction_tree (001 & 002).
   for (const match of sql.matchAll(/INSERT INTO episodes[\s\S]*?ON CONFLICT \(id\) DO NOTHING;/g)) {
     const idMatch = /VALUES\s*\(\s*(\d{4})/.exec(match[0])
     if (!idMatch) continue
-    getEpisode(Number(idMatch[1]))
-    parseTree(match[0], Number(idMatch[1]))
+    const episodeId = Number(idMatch[1])
+    getEpisode(episodeId)
+    parseTree(match[0], episodeId)
+    // `source_episodes` wajib ada bila disebut: satu chapter = 1–2 episode anime.
+    if (match[0].includes('source_episodes')) {
+      const src = /ARRAY\[([\d,\s]+)\]/.exec(match[0].slice(match[0].indexOf('source_episodes')))
+      if (!src) errors.push(`Episode ${episodeId}: source_episodes tidak terbaca`)
+      else if (!src[1].split(',').map((s) => Number(s.trim())).includes(episodeId)) {
+        errors.push(`Episode ${episodeId}: source_episodes harus memuat episode itu sendiri`)
+      }
+    }
+  }
+  // Update tree untuk episode yang sudah ada (001_init.sql).
+  for (const match of sql.matchAll(/UPDATE episodes[\s\S]*?WHERE id = (\d+);/g)) {
+    parseTree(match[0], Number(match[1]))
   }
 }
 
