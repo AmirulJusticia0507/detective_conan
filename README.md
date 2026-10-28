@@ -103,8 +103,8 @@ CREATE TABLE quests (
 
 ## Roadmap
 
-- [ ] **Foundation:** buat struktur monorepo, inisialisasi PostGIS, Vue + Tailwind + Pinia, dan Express dengan koneksi PostgreSQL.
-- [ ] **Mekanik inti:** peta 2D, interaksi NPC dan dialog, inventaris, serta evidence board.
+- [x] **Foundation:** struktur monorepo, PostGIS, Vue + Tailwind + Pinia, dan Express dengan koneksi PostgreSQL.
+- [x] **Mekanik inti:** peta 2D, interaksi NPC dan dialog, inventaris, serta evidence board.
 - [ ] **Konten episode:** arc Kogoro Framed, Kaitou Kid, Cafe Poirot, dan mini-quest episode filler.
 - [ ] **Polish:** UI bertema anime, efek suara, optimasi indeks PostGIS, dan sinkronisasi state.
 

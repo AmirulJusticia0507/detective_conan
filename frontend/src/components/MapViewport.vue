@@ -88,14 +88,20 @@ async function interact() {
   busy.value = true
   try {
     const coords = worldToLatLng(player.position, map.worldWidth, map.worldHeight)
-    await player.syncPositionOnServer(coords.lat, coords.lng)
+    const saved = await player.syncPositionOnServer(coords.lat, coords.lng)
+    if (!saved) return
     const result = await episode.collect(target.data.id)
-    if (result) {
-      const item = episode.evidence.find((e) => e.id === target.data.id)
-      player.inventory = result.inventory
-      player.deductionPoints = result.deduction_points
-      episode.openDialogue([`Conan: (Ketemu! ${item?.name ?? 'Sebuah bukti'})`])
+    if (!result) {
+      player.error = episode.error
+      return
     }
+    const item = episode.evidence.find((e) => e.id === target.data.id)
+    player.inventory = result.inventory.map((entry) => ({
+      ...entry,
+      description: entry.description || episode.evidence.find((e) => e.id === entry.id)?.description || '',
+    }))
+    player.deductionPoints = result.deduction_points
+    episode.openDialogue([`Conan: (Ketemu! ${item?.name ?? 'Sebuah bukti'})`])
   } finally {
     busy.value = false
     refreshNearby()

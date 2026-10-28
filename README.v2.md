@@ -139,15 +139,15 @@ Agar agen AI (seperti Gemini / Claude) dapat membantu mengembangkan game ini sec
 
 # 5. TODO Checklist & Roadmap
 
-- [ ] **Phase 1: Foundation & Setup**
-  - [ ] Setup Monorepo / Folder Structure (`/frontend` & `/backend`).
-  - [ ] Inisialisasi PostgreSQL dengan ekstensi PostGIS.
-  - [ ] Setup Vue 3 + Tailwind CSS + Pinia store.
-  - [ ] Setup Express.js server dengan koneksi pg-promise / Knex.js / Prisma.
-- [ ] **Phase 2: Core Game Mechanics**
-  - [ ] Implementasi Peta Open World Distrik Beika (Canvas top-down 2D movement).
-  - [ ] Sistem Interaksi NPC & Dialogue System dengan Tailwind CSS overlay.
-  - [ ] Inventory System & Evidence Board (UI Drag-and-drop bukti untuk analisis).
+- [x] **Phase 1: Foundation & Setup**
+  - [x] Setup Monorepo / Folder Structure (`/frontend` & `/backend`).
+  - [x] Inisialisasi PostgreSQL dengan ekstensi PostGIS dan seed pemain demo.
+  - [x] Setup Vue 3 + Tailwind CSS + Pinia store.
+  - [x] Setup Express.js server dengan koneksi `pg`.
+- [x] **Phase 2: Core Game Mechanics**
+  - [x] Implementasi peta open world Distrik Beika (Canvas top-down 2D movement).
+  - [x] Sistem interaksi NPC dan dialog dengan Tailwind CSS overlay.
+  - [x] Inventory system dan evidence board untuk menghubungkan bukti.
 - [ ] **Phase 3: Episode Content Development (Ep 1126 - 1150)**
   - [ ] Ep 1126 Arc: Misi pembebasan & pembersihan nama Kogoro Mouri.
   - [ ] Kaitou Kid Arc: Mini-game pertunjukan sulap & pencurian mahkota di museum.
