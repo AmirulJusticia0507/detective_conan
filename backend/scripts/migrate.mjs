@@ -5,7 +5,11 @@ import pg from 'pg'
 if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL belum diisi.')
 
 const client = new pg.Client({ connectionString: process.env.DATABASE_URL })
-const migrations = ['migrations/001_init.sql', 'migrations/002_episode_content.sql']
+const migrations = [
+  'migrations/001_init.sql',
+  'migrations/002_episode_content.sql',
+  'migrations/003_canonical_episode_catalog.sql',
+]
 
 try {
   await client.connect()
