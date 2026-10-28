@@ -5,6 +5,7 @@ import { useMapStore } from '@/stores/mapStore'
 import { useEpisodeStore } from '@/stores/episodeStore'
 import { createRenderer } from '@/game/renderer'
 import { createLoop, readMovement, PLAYER_SPEED } from '@/game/loop'
+import { playTone } from '@/game/sound'
 import { computed } from 'vue'
 import { NPCS, EVIDENCE_MARKERS, findNearby, isBlocked } from '@/game/worldData'
 import { worldToLatLng, latLngToWorld } from '@/utils/geo'
@@ -96,6 +97,7 @@ async function interact() {
   if (!target) return
 
   if (target.type === 'npc') {
+    playTone(660)
     episode.openDialogue(target.data.dialogue)
     return
   }
@@ -108,11 +110,13 @@ async function interact() {
 
     const result = await episode.collect(target.data.id)
     if (!result.ok) {
+      playTone(180, 0.15)
       player.error = result.reason
       return
     }
 
     player.applyServerState(result)
+    playTone(880, 0.12)
     const name = result.evidence?.name ?? 'sebuah bukti'
     episode.openDialogue([`Conan: (Ketemu! ${name})`])
   } finally {
