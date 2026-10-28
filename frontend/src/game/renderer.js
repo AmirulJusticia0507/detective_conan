@@ -36,7 +36,10 @@ export function createRenderer(canvas) {
   resize()
 
   function draw(state) {
-    const { width, height } = canvas.getBoundingClientRect()
+    // ctx sudah di-scale oleh resize(), jadi hitung luas gambar dalam unit CSS
+    // agar fillRect tidak terpotong di layar HiDPI.
+    const width = canvas.width / dpr
+    const height = canvas.height / dpr
     const {
       camera,
       player,
